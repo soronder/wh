@@ -148,7 +148,9 @@ class Modal
                                             />
                                         ) : (
                                             <div>
-                                                {description || "No description yet"}
+                                                <pre>
+                                                    {description || "No description yet"}
+                                                </pre>
                                                 <i className='far fa-edit' onClick={this.editDescription}></i>
                                             </div>
                                         )

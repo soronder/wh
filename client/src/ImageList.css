@@ -152,6 +152,12 @@ body.overlay-open {
     background: #eee;
     padding: 1em;
     width: 100%;
+    text-align: left;
+}
+.overlay-content .description pre {
+    margin: 0;
+    white-space: pre-line;
+    font-family: Arial, Helvetica, sans-serif;
 }
 .overlay-content .description .fa-edit {
     display: none;

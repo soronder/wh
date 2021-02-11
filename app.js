@@ -23,7 +23,7 @@ const shared = {
 };
 
 try {
-    const filePath = path.join(__dirname, 'state.json');
+    const filePath = path.join(__dirname, 'state-backup.json');
     if (fs.existsSync(filePath)) {
         shared.state = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     }
