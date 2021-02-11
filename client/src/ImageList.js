@@ -231,10 +231,12 @@ class GalleryModal
             ({ comments, claimed } = this.props.meta);
         }
         let claimedByYou;
+        let claimedByMultiple;
         let claimedByOthers;
         if(claimed && claimed.length > 0) {
             claimedByYou = claimed.includes(Session.name);
-            claimedByOthers = claimed.length > 1 || !claimedByYou;
+            claimedByMultiple = claimed.length > 1;
+            claimedByOthers = !claimedByYou;
         }
         return [
             <div
@@ -250,11 +252,11 @@ class GalleryModal
                 <div className="title">{file.name}</div>
                 {
                     (claimedByYou || claimedByOthers) &&
-                    <div className="claimed btn btn-primary">
+                    <div className={`claimed btn btn-${claimedByYou ? 'primary' : 'info'}`}>
                         Claimed by
                         {claimedByYou && " You "}
-                        {(claimedByYou && claimedByOthers) && " And "}
-                        {claimedByOthers && " Others "}
+                        {(claimedByYou && claimedByMultiple) && " And "}
+                        {claimedByMultiple ? " Others" : claimedByOthers ? ` ${claimed}` : ''}
                     </div>
                 }
             </div>,
