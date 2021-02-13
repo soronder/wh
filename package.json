@@ -13,8 +13,10 @@
     "debug": "~2.6.9",
     "directory-tree": "^2.2.6",
     "express": "~4.16.1",
+    "lodash.keyby": "^4.6.0",
     "lodash.uniq": "^4.5.0",
     "lodash.without": "^4.4.0",
+    "mongodb": "^3.6.4",
     "morgan": "~1.9.1",
     "uuid": "^8.3.2"
   }
