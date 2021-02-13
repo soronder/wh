@@ -11,6 +11,7 @@ import {
 
 import 'react-accessible-accordion/dist/fancy-example.css';
 
+import { RecentlyUpdated } from "./RecentlyUpdated";
 import { Session } from './Session';
 import { TextArea } from './TextArea';
 import { size } from './utils';
@@ -97,6 +98,13 @@ class Modal
         .then(meta => {
             this.setState({ meta });
         });
+
+        Session.fetch({
+            path: '/recentlychanged'
+        })
+        .then(meta => {
+            console.log(meta);
+        });
     }
     submitComment(value) {
         Session.post({
@@ -119,7 +127,7 @@ class Modal
         });
     }
     render() {
-        const {file, dir, index} = this.props;
+        const {file} = this.props;
         let description, comments, claimed;
         if(this.state.meta) {
             ({description, comments, claimed} = this.state.meta);
@@ -189,7 +197,7 @@ class Modal
     }
 }
 
-class GalleryModal
+export class ExpandableImage
     extends React.Component {
     constructor(props) {
         super(props);
@@ -225,10 +233,10 @@ class GalleryModal
         }
     }
     render() {
-        const {file, dir, index} = this.props;
+        const {file, meta} = this.props;
         let comments, claimed;
-        if(this.props.meta) {
-            ({ comments, claimed } = this.props.meta);
+        if(meta) {
+            ({ comments, claimed } = meta);
         }
         let claimedByYou;
         let claimedByMultiple;
@@ -263,9 +271,7 @@ class GalleryModal
             this.state.open &&
             <Modal
                 key='overlay'
-                dir={dir}
                 file={file}
-                index={index}
                 closeModal={this.closeModal}
             />
         ];
@@ -316,11 +322,11 @@ class Directory
                             }
                             else if (file.type === 'file') {
                                 return this.state.open && (
-                                    <GalleryModal
+                                    <ExpandableImage
                                         key={file.path}
                                         file={file}
-                                        dir={dir}
-                                        index={index}
+                                        // dir={dir}
+                                        // index={index}
                                         meta2={Session.state[file.path]}
                                         meta={this.state.meta[file.path]}
                                         onModalClose={this.fetchMetadata}
@@ -364,10 +370,15 @@ export class ImageList
             return null;
         }
         return (
-            <div className='image-list'>
-                {this.state.dir.children.map(dir => (
-                    <Directory key={dir.path} dir={dir} />
-                ))}
+            <div className='row image-list'>
+                <div className='col-10 directories'>
+                    {this.state.dir.children.map(dir => (
+                        <Directory key={dir.path} dir={dir} />
+                    ))}
+                </div>
+                <div className='col-2'>
+                    <RecentlyUpdated meta={this.state.meta} />
+                </div>
             </div>
         );
     }

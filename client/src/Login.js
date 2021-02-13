@@ -13,6 +13,7 @@ export class Login
         this.changeName = this.changeName.bind(this);
         this.changePassword = this.changePassword.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
+        this.onClickSubmit = this.onClickSubmit.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
     }
     componentDidMount() {
@@ -22,6 +23,7 @@ export class Login
                 })
                 .then(({ error, name }) => {
                     if(error) {
+                        Session.clearToasts();
                         this.setState({
                             error: error,
                         });
@@ -31,7 +33,9 @@ export class Login
                         this.props.onAuth(name);
                     }
                     else {
-                        console.log("Unexpected error");
+                        this.setState({
+                            error: "Unexpected auth error",
+                        });
                     }
                 });
         }
@@ -52,6 +56,10 @@ export class Login
             this.onSubmit();
         }
     }
+    onClickSubmit(e) {
+        e.preventDefault();
+        this.onSubmit();
+    }
     onSubmit() {
         this.setState({
             error: null,
@@ -65,6 +73,7 @@ export class Login
             })
             .then(({ token, name, error }) => {
                 if(error) {
+                    Session.clearToasts();
                     this.setState({
                         error: error,
                     });
@@ -74,7 +83,9 @@ export class Login
                     this.props.onAuth(name);
                 }
                 else {
-                    console.log("Unexpected error");
+                    this.setState({
+                        error: "Unexpected auth error",
+                    });
                 }
             });
     }
@@ -82,25 +93,32 @@ export class Login
         return (
             <div className="login">
                 <form onSubmit={this.onSubmit}>
-                    <input
-                        placeholder="Name"
-                        onKeyDown={this.onKeyDown}
-                        onChange={this.changeName}
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        onKeyDown={this.onKeyDown}
-                        onChange={this.changePassword}
-                    />
-                    <input
-                        type="submit"
-                        value="Submit"
-                    />
-                    {
-                        this.state.error &&
-                        <div className="error">{this.state.error}</div>
-                    }
+                    <div className="form-group">
+                        <input
+                            className="form-control"
+                            placeholder="Name"
+                            onKeyDown={this.onKeyDown}
+                            onChange={this.changeName}
+                        />
+                        <input
+                            className="form-control"
+                            type="password"
+                            placeholder="Password"
+                            onKeyDown={this.onKeyDown}
+                            onChange={this.changePassword}
+                        />
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            onClick={this.onClickSubmit}
+                        >
+                            Submit
+                        </button>
+                        {
+                            this.state.error &&
+                            <div className="alert alert-danger">{this.state.error}</div>
+                        }
+                    </div>
                 </form>
             </div>
         );

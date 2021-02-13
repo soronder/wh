@@ -2,13 +2,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-// var fs = require('fs');
 
 const { MongoClient } = require('mongodb');
 
 var uuid = require('uuid');
-// var uniq = require('lodash.uniq');
-// var without = require('lodash.without');
 var keyBy = require('lodash.keyby');
 
 const dirTree = require('directory-tree');
@@ -21,41 +18,7 @@ var app = express();
 
 const shared = {
     auth: {},
-    state: {},
-    stateChange: false,
 };
-
-// try {
-//     const filePath = path.join(__dirname, 'state-backup.json');
-//     if (fs.existsSync(filePath)) {
-//         shared.state = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-//     }
-//     else {
-//         shared.state = {};
-//     }
-// }
-// catch(e) {
-//     console.log('Error initializing state from file');
-//     throw e;
-// }
-
-// setInterval(function() {
-//     if(!shared.stateChange) {
-//         return;
-//     }
-//     var start = new Date();
-//     var hrstart = process.hrtime();
-
-//     fs.writeFileSync(path.join(__dirname, 'state.json'), JSON.stringify(shared.state));
-
-//     var end = new Date() - start,
-//         hrend = process.hrtime(hrstart);
-
-//     console.info('Write execution time: %dms', end);
-//     console.info('Write execution time (hr): %ds %dms', hrend[0], hrend[1] / 1000000);
-
-//     shared.stateChange = false;
-// }, 1000);
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -82,10 +45,23 @@ client.connect(async (err) => {
         return res.json(tree);
     });
 
-    app.get('/meta', function(req, res) {
-        const path = req.query && req.query.path;
+    app.get('/recentlychanged', function(req, res) {
         const auth = getAuth(req);
-        if(auth && path) {
+        if(!auth) {
+            return res.json({ error: 'Auth expired. Please sign back in.' });
+        }
+        return collection.find({updated:{$exists:true}}, {$orderby: {updated: 1}}).limit(10).toArray().then((result) => {
+            return res.json(result || []);
+        });
+    });
+
+    app.get('/meta', function(req, res) {
+        const auth = getAuth(req);
+        if(!auth) {
+            return res.json({ error: 'Auth expired. Please sign back in.' });
+        }
+        const path = req.query && req.query.path;
+        if(path) {
             return collection.findOne({path}).then((result) => {
                 return res.json(result || {
                     description: '',
@@ -100,15 +76,20 @@ client.connect(async (err) => {
     });
 
     app.post('/meta', function(req, res) {
-        const path = req.query && req.query.path;
         const auth = getAuth(req);
-        if(auth && path) {
-            let value = { $set: { path } };
+        if(!auth) {
+            return res.json({ error: 'Auth expired. Please sign back in.' });
+        }
+        const path = req.query && req.query.path;
+        if(path) {
+            const name = path.split('/').pop();
+            const updated = new Date().getTime();
+            let value = { $set: { path, name, updated } };
             if(req.body.comment) {
                 value.$push = {
                     comments: {
                         author: auth.name,
-                        time: new Date().getTime(),
+                        time: updated,
                         comment: req.body.comment,
                     }
                 };
@@ -136,7 +117,7 @@ client.connect(async (err) => {
                     return res.json({ error: 'failed to update' });
                 });
         }
-        return null;
+        return res.json({ error: 'try to attempt without record path' });
     });
 
     app.get('/thumb', function(req, res) {
@@ -156,12 +137,9 @@ function getAuth(req) {
 app.get('/loginvalidate', function(req, res) {
     const auth = getAuth(req);
     if(auth) {
-        let { name } = auth;
-        return res.json({
-            name: name
-        });
+        return res.json({ name: auth.name });
     }
-    return res.json({error: "No token provided"});
+    return res.json({error: "Invalid token provided"});
 });
 
 app.post('/login', function(req, res) {
@@ -172,6 +150,7 @@ app.post('/login', function(req, res) {
             const token = uuid.v4();
             shared.auth[token] = {
                 name: name,
+                time: new Date().getTime(),
             };
             return res.json({token: token, name: name});
         }
