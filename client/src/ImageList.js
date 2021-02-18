@@ -389,6 +389,7 @@ class Directory
             const includeDiscard = this.props.toggles.discard;
             const includeClaimed = this.props.toggles.claimed;
             const includeCountdown = this.props.toggles.countdown;
+            const includeCommented = this.props.toggles.commented;
             if( includeStorage && meta.storage ) {
                 return true;
             }
@@ -401,11 +402,15 @@ class Directory
             if( includeClaimed && meta.claimed && meta.claimed.length ) {
                 return true;
             }
+            if( includeCommented && meta.comments && meta.comments.length ) {
+                return true;
+            }
             if( this.props.toggles.available ) {
                 return ! meta.storage &&
                        ! meta.discard &&
                        ! meta.countdown &&
-                       ( ! meta.claimed || ! meta.claimed.length );
+                       ( ! meta.claimed || ! meta.claimed.length ) &&
+                       ( ! meta.commented || ! meta.commented.length );
             }
         }
         else if( this.props.toggles.available ) {
@@ -461,7 +466,7 @@ export class ImageList
         super(props);
         this.state = {
             dir: null,
-            toggleArray: ["available", "claimed"],
+            toggleArray: ["available", "claimed", "countdown"],
             toggles: { available: true, claimed: true },
         };
         this.toggleType = this.toggleType.bind(this);
@@ -515,6 +520,7 @@ export class ImageList
                         <ToggleButton value="storage">Storage</ToggleButton>
                         <ToggleButton value="discard">Discard</ToggleButton>
                         <ToggleButton value="countdown">Countdown</ToggleButton>
+                        <ToggleButton value="commented">Commented</ToggleButton>
                     </ToggleButtonGroup>
                     <RecentlyUpdated meta={this.state.meta} />
                 </div>
