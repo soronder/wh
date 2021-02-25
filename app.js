@@ -48,7 +48,7 @@ client.connect(async (err) => {
     app.get('/recentlychanged', function(req, res) {
         const auth = getAuth(req);
         if(!auth) {
-            return res.json({ error: 'Auth expired. Please sign back in.' });
+            return res.json({ errCode: "AUTH_EXP", error: 'Auth expired. Please sign back in.' });
         }
         return collection.find({
                 updated: {$exists:true}
@@ -65,7 +65,7 @@ client.connect(async (err) => {
     app.get('/meta', function(req, res) {
         const auth = getAuth(req);
         if(!auth) {
-            return res.json({ error: 'Auth expired. Please sign back in.' });
+            return res.json({ errCode: "AUTH_EXP", error: 'Auth expired. Please sign back in.' });
         }
         const path = req.query && req.query.path;
         if(path) {
@@ -85,7 +85,7 @@ client.connect(async (err) => {
     app.post('/meta', function(req, res) {
         const auth = getAuth(req);
         if(!auth) {
-            return res.json({ error: 'Auth expired. Please sign back in.' });
+            return res.json({ errCode: "AUTH_EXP", error: 'Auth expired. Please sign back in.' });
         }
         const path = req.query && req.query.path;
         if(path) {

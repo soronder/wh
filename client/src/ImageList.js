@@ -66,6 +66,7 @@ class Modal
             meta: {},
             editingDescription: false,
         };
+        this.updateMeta = this.updateMeta.bind(this);
         this.submitComment = this.submitComment.bind(this);
         this.onKeyDownDescription = this.onKeyDownDescription.bind(this);
         this.editDescription = this.editDescription.bind(this);
@@ -94,9 +95,12 @@ class Modal
             query: { path: this.props.file.path },
             body: { description: value },
         })
-        .then(meta => {
+        .then(({response}) => {
+            if(!response) {
+                return;
+            }
             this.setState({
-                meta: meta,
+                meta: response || {},
                 editingDescription: false,
             });
         });
@@ -106,15 +110,13 @@ class Modal
             path: '/meta',
             query: { path: this.props.file.path },
         })
-        .then(meta => {
-            this.setState({ meta });
-        });
+        .then(this.updateMeta);
 
         Session.fetch({
             path: '/recentlychanged'
         })
-        .then(meta => {
-            console.log(meta);
+        .then(({response}) => {
+            console.log(response);
         });
     }
     submitComment(value) {
@@ -123,9 +125,7 @@ class Modal
             query: { path: this.props.file.path },
             body: { comment: value }
         })
-        .then(meta => {
-            this.setState({ meta });
-        });
+        .then(this.updateMeta);
     }
     setClaimed(claimed) {
         Session.post({
@@ -133,9 +133,7 @@ class Modal
             query: { path: this.props.file.path },
             body: { claimed },
         })
-        .then(meta => {
-            this.setState({ meta });
-        });
+        .then(this.updateMeta);
     }
     setDiscard(discard) {
         Session.post({
@@ -143,9 +141,7 @@ class Modal
             query: { path: this.props.file.path },
             body: { discard },
         })
-        .then(meta => {
-            this.setState({ meta });
-        });
+        .then(this.updateMeta);
     }
     setStorage(storage) {
         Session.post({
@@ -153,9 +149,10 @@ class Modal
             query: { path: this.props.file.path },
             body: { storage },
         })
-        .then(meta => {
-            this.setState({ meta });
-        });
+        .then(this.updateMeta);
+    }
+    updateMeta({response}) {
+        this.setState({ meta: response || {} });
     }
     startCountdown() {
         this.setCountdown(moment().add(5, 'days').valueOf());
@@ -169,9 +166,7 @@ class Modal
             query: { path: this.props.file.path },
             body: { countdown },
         })
-        .then(meta => {
-            this.setState({ meta });
-        });
+        .then(this.updateMeta);
     }
     render() {
         const {file} = this.props;
@@ -374,13 +369,16 @@ class Directory
     fetchMetadata(accordionUid) {
         Session.fetchAllMetaData()
             .then(meta => {
-                this.setState({ meta });
+                this.setState({ meta: meta || {} });
             });
     }
     onOpen(accordionUid) {
         Session.fetchAllMetaData()
             .then(meta => {
-                this.setState({ meta, open: !this.state.open });
+                this.setState({
+                    meta: meta || {},
+                    open: !this.state.open,
+                });
             });
     }
     includeItem(meta) {
@@ -475,17 +473,17 @@ export class ImageList
         Session.fetch({
             path: '/dir',
         })
-        .then(directories => {
+        .then(({response}) => {
             this.setState({
-                dir: directories
+                dir: response || []
             });
         });
 
         Session.fetch({
             path: '/meta',
         })
-        .then(meta => {
-            this.setState({ meta });
+        .then(({response}) => {
+            this.setState({ meta: response || {} });
         });
     }
     toggleType(toggles) {

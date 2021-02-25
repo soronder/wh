@@ -40,17 +40,17 @@ export class RecentlyUpdated
         Session.fetch({
             path: '/recentlychanged'
         })
-        .then(items => {
-            console.log(items);
+        .then(({response}) => {
+            console.log(response);
             this.setState({
-                items: items
+                items: response || []
             })
         });
     }
     fetchMetadata(accordionUid) {
         Session.fetchAllMetaData()
             .then(meta => {
-                this.setState({ meta });
+                this.setState({ meta: meta || {} });
             });
     }
     render() {

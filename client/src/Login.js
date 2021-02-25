@@ -21,16 +21,14 @@ export class Login
             return Session.fetch({
                     path: "/loginvalidate"
                 })
-                .then(({ error, name }) => {
+                .then(({ error, response }) => {
                     if(error) {
                         Session.clearToasts();
-                        this.setState({
-                            error: error,
-                        });
+                        this.setState({ error });
                     }
-                    else if(name) {
-                        Session.setToken(Session.token, name);
-                        this.props.onAuth(name);
+                    else if(response && response.name) {
+                        Session.setToken(Session.token, response.name);
+                        this.props.onAuth(response.name);
                     }
                     else {
                         this.setState({
@@ -71,16 +69,14 @@ export class Login
                     password: this.state.password,
                 }
             })
-            .then(({ token, name, error }) => {
+            .then(({ response, error }) => {
                 if(error) {
                     Session.clearToasts();
-                    this.setState({
-                        error: error,
-                    });
+                    this.setState({ error });
                 }
-                else if(token) {
-                    Session.setToken(token, name);
-                    this.props.onAuth(name);
+                else if(response && response.token) {
+                    Session.setToken(response.token, response.name);
+                    this.props.onAuth(response.name);
                 }
                 else {
                     this.setState({

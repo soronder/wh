@@ -12,11 +12,17 @@ export const Session = {
     clearToasts() {
         toast.dismiss()
     },
+    errorExpiry: {},
     toast(state, message) {
         if(Session.token && !Session.name) {
             // not yet authed
             return;
         }
+        const now = new Date().getTime();
+        if(now < Session.errorExpiry[message]) {
+            return;
+        }
+        Session.errorExpiry[message] = now + 5000;
         toast[state](message, {
             position: "top-right",
             autoClose: 5000,
@@ -31,9 +37,9 @@ export const Session = {
         return Session.fetch({
                 path: '/meta',
             })
-            .then(meta => {
-                Session.state = meta;
-                return meta;
+            .then(({response}) => {
+                Session.state = response;
+                return response;
             });
     },
     fetch({ path, query }) {
@@ -43,11 +49,15 @@ export const Session = {
         return fetch(`${path}?${search}`)
             .then(response => response.text())
             .then(response => JSON.parse(response))
-            .then(json => {
-                if (json.error) {
-                    Session.toast("error", json.error);
+            .then(response => {
+                if (response.error) {
+                    Session.toast("error", response.error);
+                    if(response.errCode === "AUTH_EXP") {
+                        Session.name = null;
+                    }
+                    return { response: null, ...response };
                 }
-                return json;
+                return { response };
             })
     },
     post({ path, query, headers, body }) {
@@ -64,11 +74,15 @@ export const Session = {
             })
             .then(response => response.text())
             .then(response => JSON.parse(response))
-            .then(json => {
-                if (json.error) {
-                    Session.toast("error", json.error);
+            .then(response => {
+                if (response.error) {
+                    Session.toast("error", response.error);
+                    if(response.errCode === "AUTH_EXP") {
+                        Session.name = null;
+                    }
+                    return { response: null, ...response };
                 }
-                return json;
+                return { response };
             })
     }
 }
