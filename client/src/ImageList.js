@@ -467,7 +467,7 @@ export class ImageList
         this.state = {
             dir: null,
             toggleArray: ["available", "claimed", "countdown"],
-            toggles: { available: true, claimed: true },
+            toggles: { available: true, claimed: true, countdown: true },
         };
         this.toggleType = this.toggleType.bind(this);
     }
