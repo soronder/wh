@@ -117,6 +117,9 @@ client.connect(async (err) => {
             if(req.body.discard !== undefined) {
                 value.$set.discard = req.body.discard ? true : false;
             }
+            if(req.body.sold !== undefined) {
+                value.$set.sold = req.body.sold ? true : false;
+            }
             if(req.body.storage !== undefined) {
                 value.$set.storage = req.body.storage ? true : false;
             }

@@ -75,6 +75,8 @@ class Modal
         this.unclaim = this.setClaimed.bind(this, false);
         this.discard = this.setDiscard.bind(this, true);
         this.undiscard = this.setDiscard.bind(this, false);
+        this.sold = this.setSold.bind(this, true);
+        this.unsold = this.setSold.bind(this, false);
         this.storage = this.setStorage.bind(this, true);
         this.unstorage = this.setStorage.bind(this, false);
         this.startCountdown = this.startCountdown.bind(this);
@@ -143,6 +145,14 @@ class Modal
         })
         .then(this.updateMeta);
     }
+    setSold(sold) {
+        Session.post({
+            path: '/meta',
+            query: { path: this.props.file.path },
+            body: { sold },
+        })
+        .then(this.updateMeta);
+    }
     setStorage(storage) {
         Session.post({
             path: '/meta',
@@ -170,9 +180,9 @@ class Modal
     }
     render() {
         const {file} = this.props;
-        let description, comments, claimed, discard, storage, countdown;
+        let description, comments, claimed, discard, sold, storage, countdown;
         if(this.state.meta) {
-            ({description, comments, claimed, discard, storage, countdown} = this.state.meta);
+            ({description, comments, claimed, discard, sold, storage, countdown} = this.state.meta);
         }
         return (
             <div className='overlay'>
@@ -238,6 +248,11 @@ class Modal
                         <div className="discard btn btn-danger" onClick={this.discard}>Discard</div>
                         }
                         {
+                        sold ?
+                        <div className="unsold btn btn-danger" onClick={this.unsold}>Cancel Sold</div> :
+                        <div className="sold btn btn-info" onClick={this.sold}>Sold</div>
+                        }
+                        {
                         countdown ?
                         <div className="uncountdown btn btn-danger" onClick={this.stopCountdown}>Cancel Countdown</div> :
                         <div className="countdown btn btn-warning" onClick={this.startCountdown}>Start Countdown</div>
@@ -291,9 +306,9 @@ export class ExpandableImage
     }
     render() {
         const {file, meta} = this.props;
-        let comments, claimed, storage, discard, countdown;
+        let comments, claimed, storage, discard, sold, countdown;
         if(meta) {
-            ({ comments, claimed, storage, discard, countdown } = meta);
+            ({ comments, claimed, storage, discard, sold, countdown } = meta);
         }
         let claimedByYou;
         let claimedByMultiple;
@@ -335,6 +350,12 @@ export class ExpandableImage
                         discard &&
                         <div className='discard btn btn-danger'>
                             Discard
+                        </div>
+                    }
+                    {
+                        sold &&
+                        <div className='sold btn btn-info'>
+                            Sold
                         </div>
                     }
                     {
@@ -385,6 +406,7 @@ class Directory
         if( meta ) {
             const includeStorage = this.props.toggles.storage;
             const includeDiscard = this.props.toggles.discard;
+            const includeSold = this.props.toggles.sold;
             const includeClaimed = this.props.toggles.claimed;
             const includeCountdown = this.props.toggles.countdown;
             const includeCommented = this.props.toggles.commented;
@@ -392,6 +414,9 @@ class Directory
                 return true;
             }
             if( includeDiscard && meta.discard ) {
+                return true;
+            }
+            if( includeSold && meta.sold ) {
                 return true;
             }
             if( includeCountdown && meta.countdown ) {
@@ -406,6 +431,7 @@ class Directory
             if( this.props.toggles.available ) {
                 return ! meta.storage &&
                        ! meta.discard &&
+                       ! meta.sold &&
                        ! meta.countdown &&
                        ( ! meta.claimed || ! meta.claimed.length ) &&
                        ( ! meta.commented || ! meta.commented.length );
@@ -517,6 +543,7 @@ export class ImageList
                         <ToggleButton value="claimed">Claimed</ToggleButton>
                         <ToggleButton value="storage">Storage</ToggleButton>
                         <ToggleButton value="discard">Discard</ToggleButton>
+                        <ToggleButton value="sold">Sold</ToggleButton>
                         <ToggleButton value="countdown">Countdown</ToggleButton>
                         <ToggleButton value="commented">Commented</ToggleButton>
                     </ToggleButtonGroup>

@@ -72,6 +72,7 @@ body {
 }
 .image-list .img .claimed,
 .image-list .img .discard,
+.image-list .img .sold,
 .image-list .img .storage,
 .image-list .img .countdown {
     width: 100%;
@@ -196,6 +197,8 @@ body.overlay-open {
 .overlay-footer .unstorage,
 .overlay-footer .discard,
 .overlay-footer .undiscard,
+.overlay-footer .sold,
+.overlay-footer .unsold,
 .overlay-footer .countdown,
 .overlay-footer .uncountdown{
     float: left;
@@ -203,7 +206,9 @@ body.overlay-open {
 .overlay-footer .storage,
 .overlay-footer .unstorage,
 .overlay-footer .discard,
-.overlay-footer .undiscard {
+.overlay-footer .undiscard,
+.overlay-footer .sold,
+.overlay-footer .unsold {
     margin-right: 1em;
 }
 
