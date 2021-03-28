@@ -20,6 +20,19 @@ const shared = {
     auth: {},
 };
 
+let dbUser = process.env.DB_USER;
+let dbPw = process.env.DB_PW;
+let dbLoc = process.env.DB_LOC;
+if (!dbUser) {
+    var result = require('dotenv').config();
+    if(result.error) {
+        throw result.error;
+    }
+    dbUser = process.env.DB_USER;
+    dbPw = process.env.DB_PW;
+    dbLoc = process.env.DB_LOC;
+}
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -27,8 +40,7 @@ app.use(cookieParser());
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/static', express.static(path.join(__dirname, 'client/build/static')));
 
-
-const uri = "garbage mongo URL";
+const uri = `mongodb+srv://${dbUser}:${dbPw}@${dbLoc}.mongodb.net/whouse?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 client.connect(async (err) => {
