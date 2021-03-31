@@ -23,6 +23,7 @@ const shared = {
 let dbUser = process.env.DB_USER;
 let dbPw = process.env.DB_PW;
 let dbLoc = process.env.DB_LOC;
+let simplePw = process.env.SIMPLE_PW;
 if (!dbUser) {
     var result = require('dotenv').config();
     if(result.error) {
@@ -31,6 +32,7 @@ if (!dbUser) {
     dbUser = process.env.DB_USER;
     dbPw = process.env.DB_PW;
     dbLoc = process.env.DB_LOC;
+    simplePw = process.env.SIMPLE_PW;
 }
 
 app.use(logger('dev'));
@@ -177,7 +179,7 @@ app.post('/login', function(req, res) {
     const name = req.body.name;
     const password = req.body.password;
     if(name && password) {
-        if(password === "garbagepw") {
+        if(password === simplePw) {
             const token = uuid.v4();
             shared.auth[token] = {
                 name: name,
