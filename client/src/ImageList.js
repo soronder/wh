@@ -1,5 +1,5 @@
-import React from "react";
-import moment from "moment";
+import React from 'react';
+import moment from 'moment';
 
 import {
     Accordion,
@@ -11,24 +11,39 @@ import {
 
 import 'react-accessible-accordion/dist/fancy-example.css';
 
-import { Session } from "./Session";
-import { TextArea } from "./TextArea";
-import { size } from "./utils";
+import { Session } from './Session';
+import { TextArea } from './TextArea';
+import { size } from './utils';
 
 import './ImageList.css';
 
 class CommentList
     extends React.Component {
+    ref = React.createRef();
+    componentDidUpdate() {
+        if(this.ref.current) {
+            this.ref.current.scrollTop = this.ref.current.scrollHeight;
+        }
+    }
     render() {
+        const comments = this.props.comments;
+        if(!comments || !comments.length) {
+            return "No comments yet";
+        }
         return (
-            <div className="comment-list">
+            <div ref={this.ref} className='comment-list'>
             {
-                this.props.comments.map(comment => (
-                    <div key={`${comment.time}${comment.author}`}>
-                        <span className="time">
-                            {moment(comment.time).format("MMM Do YYYY h:mm:ssa")}
-                        </span>
-                        <span className="author">{comment.author}</span>: {comment.comment}
+                comments.map(comment => (
+                    <div key={`${comment.time}${comment.author}`} className="chat">
+                        <div className="tooltip bs-tooltip-bottom" role="tooltip">
+                            <div className="arrow"></div>
+                            <div className="tooltip-inner">
+                                {moment(comment.time).format('MMM Do YYYY h:mma')}
+                            </div>
+                        </div>
+                        <span className='author'>
+                            {comment.author}
+                        </span>: {comment.comment}
                     </div>
                 ))
             }
@@ -47,9 +62,10 @@ class Modal
         };
         this.submitComment = this.submitComment.bind(this);
         this.onKeyDownDescription = this.onKeyDownDescription.bind(this);
-        // this.onKeyDownComment = this.onKeyDownComment.bind(this);
         this.editDescription = this.editDescription.bind(this);
         this.submitDescription = this.submitDescription.bind(this);
+        this.claim = this.setClaimed.bind(this, true);
+        this.unclaim = this.setClaimed.bind(this, false);
     }
     editDescription() {
         this.setState({ editingDescription: true });
@@ -82,13 +98,6 @@ class Modal
             this.setState({ meta });
         });
     }
-    // onKeyDownComment(e) {
-    //     if(e.keyCode === 13) {
-    //         e.preventDefault();
-    //         this.submitComment(e.target.value);
-    //         e.target.value = null;
-    //     }
-    // }
     submitComment(value) {
         Session.post({
             path: '/meta',
@@ -99,53 +108,78 @@ class Modal
             this.setState({ meta });
         });
     }
+    setClaimed(claimed) {
+        Session.post({
+            path: '/meta',
+            query: { path: this.props.file.path },
+            body: { claimed: claimed },
+        })
+        .then(meta => {
+            this.setState({ meta });
+        });
+    }
     render() {
         const {file, dir, index} = this.props;
-        let description, comments;
+        let description, comments, claimed;
         if(this.state.meta) {
-            ({description, comments} = this.state.meta);
+            ({description, comments, claimed} = this.state.meta);
         }
         return (
-            <div className="modal">
-                <div className="modal-body">
-                    <h2 className="modal-header">
+            <div className='overlay'>
+                <div className='overlay-body'>
+                    <h2 className='overlay-header'>
                         {file.name}
-                        <span onClick={this.props.closeModal} className="modal-close">X</span>
+                        <i onClick={this.props.closeModal} className='fas fa-times'></i>
                     </h2>
-                    <div className="modal-content">
-                        <div className="column">
-                            <img src={`${file.path}`} />
-                        </div>
-                        <div className="column">
-                            <div className="description">
-                                {
-                                    this.state.editingDescription ? (
-                                        <TextArea
-                                            placeholder="Add Description..."
-                                            value={description}
-                                            onSubmit={this.submitDescription}
-                                            onKeyDown={this.onKeyDownDescription}
-                                        />
-                                    ) : (
-                                        <div>
-                                            {description}
-                                            <i className="far fa-edit" onClick={this.editDescription}></i>
-                                        </div>
-                                    )
-                                }
+                    <div className='overlay-content'>
+                        <div className='row'>
+                            <div key="img" className='col-md-8'>
+                                <img src={`${file.path}`} />
                             </div>
-                            <div className="comment-box">
-                                {comments ? <CommentList comments={comments} /> : "No comments"}
-                                <div>
-                                    <TextArea
-                                        placeholder="Add Comment..."
-                                        onSubmit={this.submitComment}
-                                    />
+                            <div key="info" className='col-md-4'>
+                                <div className='description'>
+                                    {
+                                        this.state.editingDescription ? (
+                                            <TextArea
+                                                placeholder='Add Description...'
+                                                value={description}
+                                                onSubmit={this.submitDescription}
+                                                onKeyDown={this.onKeyDownDescription}
+                                            />
+                                        ) : (
+                                            <div>
+                                                {description || "No description yet"}
+                                                <i className='far fa-edit' onClick={this.editDescription}></i>
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                                {
+                                    claimed && claimed.length > 0 &&
+                                    <div className='claimed'>
+                                        {claimed.join(', ')}
+                                        {claimed.length === 1 ? ' is ' : ' are '}
+                                        interested.
+                                    </div>
+                                }
+                                <div className='comment-box'>
+                                    <CommentList comments={comments} />
+                                    <div>
+                                        <TextArea
+                                            placeholder='Add Comment...'
+                                            onSubmit={this.submitComment}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="modal-footer">
+                    <div className='overlay-footer'>
+                        {
+                        claimed && claimed.includes(Session.name) ?
+                        <div className="unclaim btn btn-danger" onClick={this.unclaim}>Not Interested</div> :
+                        <div className="claim btn btn-primary" onClick={this.claim}>Interested</div>
+                        }
                     </div>
                 </div>
             </div>
@@ -183,9 +217,9 @@ class GalleryModal
         }
     }
     componentDidUpdate() {
-        document.body.className = document.body.className.replace("modal-open", "");
+        document.body.className = document.body.className.replace('overlay-open', '');
         if(this.state.open) {
-            document.body.className += " modal-open";
+            document.body.className += ' overlay-open';
         }
     }
     render() {
@@ -194,24 +228,42 @@ class GalleryModal
         if(this.props.meta) {
             ({ comments, claimed } = this.props.meta);
         }
+        let claimedByYou;
+        let claimedByOthers;
+        if(claimed && claimed.length > 0) {
+            claimedByYou = claimed.includes(Session.name);
+            claimedByOthers = claimed.length > 1 || !claimedByYou;
+        }
         return [
             <div
-                key="img"
-                className="img"
-                style={{backgroundImage: `url("${file.path}")`}}
+                key='img'
+                className='img'
+                style={{backgroundImage: `url('${file.path}')`}}
                 onClick={this.openModal}
             >
                 {
                     comments && comments.length > 0 && 
-                    <i className={`far fa-${comments.length > 1 ? "comments" : "comment"}`}></i>
+                    <i className={`far fa-${comments.length > 1 ? 'comments' : 'comment'}`}></i>
                 }
+                <div className="title">{file.name}</div>
                 {
-                    claimed && 
-                    <i className={`fas fa-heart`}></i>
+                    (claimedByYou || claimedByOthers) &&
+                    <div className="claimed btn btn-primary">
+                        Claimed by
+                        {claimedByYou && " You "}
+                        {(claimedByYou && claimedByOthers) && " And "}
+                        {claimedByOthers && " Others "}
+                    </div>
                 }
-                <div>{file.name}</div>
             </div>,
-            this.state.open && <Modal key="modal" dir={dir} file={file} index={index} closeModal={this.closeModal} />
+            this.state.open &&
+            <Modal
+                key='overlay'
+                dir={dir}
+                file={file}
+                index={index}
+                closeModal={this.closeModal}
+            />
         ];
     }
 }
@@ -221,14 +273,22 @@ class Directory
     constructor(props) {
         super(props);
         this.state = {
-            meta: {}
+            meta: {},
+            open: false,
         };
         this.onOpen = this.onOpen.bind(this);
+        this.fetchMetadata = this.fetchMetadata.bind(this);
+    }
+    fetchMetadata(accordionUid) {
+        Session.fetchAllMetaData()
+            .then(meta => {
+                this.setState({ meta });
+            });
     }
     onOpen(accordionUid) {
         Session.fetchAllMetaData()
             .then(meta => {
-                this.setState({ meta });
+                this.setState({ meta, open: !this.state.open });
             });
     }
     render() {
@@ -247,18 +307,19 @@ class Directory
                     </AccordionItemHeading>
                     <AccordionItemPanel>
                         {dir.children.map((file, index) => {
-                            if (file.type === "directory") {
+                            if (file.type === 'directory') {
                                 return <Directory key={file.path} dir={file} />;
                             }
-                            else if (file.type === "file") {
-                                return (
+                            else if (file.type === 'file') {
+                                return this.state.open && (
                                     <GalleryModal
                                         key={file.path}
                                         file={file}
                                         dir={dir}
                                         index={index}
+                                        meta2={Session.state[file.path]}
                                         meta={this.state.meta[file.path]}
-                                        onModalClose={this.onOpen}
+                                        onModalClose={this.fetchMetadata}
                                     />
                                 );
                             }
@@ -299,8 +360,10 @@ export class ImageList
             return null;
         }
         return (
-            <div className="image-list">
-                <Directory dir={this.state.dir} />
+            <div className='image-list'>
+                {this.state.dir.children.map(dir => (
+                    <Directory key={dir.path} dir={dir} />
+                ))}
             </div>
         );
     }

@@ -5,6 +5,8 @@ var logger = require('morgan');
 var fs = require('fs');
 
 var uuid = require('uuid');
+var uniq = require('lodash.uniq');
+var without = require('lodash.without');
 
 const dirTree = require('directory-tree');
 // const imageThumbnail = require('image-thumbnail');
@@ -104,6 +106,16 @@ app.post('/meta', function(req, res) {
         if(req.body.description) {
             meta.description = req.body.description;
         }
+        if(req.body.claimed !== undefined) {
+            meta.claimed = meta.claimed || [];
+            if(req.body.claimed) {
+                meta.claimed.push(auth.name);
+                meta.claimed = uniq(meta.claimed);
+            }
+            else {
+                meta.claimed = without(meta.claimed, auth.name);
+            }
+        }
         shared.stateChange = true;
         return res.json(meta);
     }
@@ -135,7 +147,7 @@ app.post('/login', function(req, res) {
             shared.auth[token] = {
                 name: name,
             };
-            return res.json({token: token});
+            return res.json({token: token, name: name});
         }
     }
     return res.json({error: "Invalid Login"});

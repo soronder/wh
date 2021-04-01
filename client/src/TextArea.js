@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
 export class TextArea
     extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: this.props.value || ""
+            value: this.props.value || ''
         };
         this.onKeyDown = this.onKeyDown.bind(this);
         this.onChange = this.onChange.bind(this);
@@ -17,8 +17,12 @@ export class TextArea
         if(e.keyCode === 13) {
             e.preventDefault();
             if(e.target.value !== this.props.value) {
-                this.props.onSubmit(e.target.value);
-                e.target.value = null;
+                if(this.props.onSubmit) {
+                    this.props.onSubmit(e.target.value);
+                }
+                this.setState({
+                    value: ''
+                });
             }
         }
     }
@@ -34,7 +38,6 @@ export class TextArea
                 value={this.state.value}
                 onKeyDown={this.onKeyDown}
                 onChange={this.onChange}
-                onSubmit={this.props.onSubmit}
             />
         );
     }

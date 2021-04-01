@@ -27,6 +27,7 @@ export class Login
                         });
                     }
                     else if(name) {
+                        Session.setToken(Session.token, name);
                         this.props.onAuth(name);
                     }
                     else {

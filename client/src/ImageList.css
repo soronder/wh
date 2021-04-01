@@ -64,12 +64,15 @@
     color: #03b1f4;
     border: 2px solid #03b1f4;
 }
-.image-list .img .fa-heart {
+.image-list .img .claimed {
+    cursor: pointer;
+    bottom: 0;
+    left: 0;
     position: absolute;
-    top: 2px;
-    right: 4px;
-    color: #ff3187;
-    font-size: 16px;
+    width: 100%;
+    padding: 2px 4px;
+    font-size: 10px;
+    border-radius: 0;
 }
 .image-list .img:hover .fa-comment,
 .image-list .img:hover .fa-comments {
@@ -80,19 +83,18 @@
     width: 100%;
     border-radius: 4px 4px 0 0;
 }
-.image-list .img div {
+.image-list .img .title {
     font-size: 10px;
     padding: 4px;
-    border-radius: 4px 4px 0 0;
     background: white;
 }
 
 
 
-body.modal-open {
+body.overlay-open {
     overflow: hidden;
 }
-.modal {
+.overlay {
     z-index: 10000;
     position: fixed;
     background: rgba(0,0,0,0.8);
@@ -102,42 +104,48 @@ body.modal-open {
     bottom: 0;
     overflow: auto;
 }
-.modal-body {
+.overlay-body {
     position: relative;
     width: 1400px;
     max-width: 90%;
     margin: 2em auto;
     background: white;
 }
-.modal-header {
+.overlay-header {
     margin: 0;
     padding: 0.5em 1em;
     text-align: left;
     border-bottom: 1px solid #ccc;
 }
-.modal-header .modal-close {
+.overlay-header .fa-times {
     position: absolute;
     top: 0;
     right: 0;
     padding: 0.5em;
     cursor: pointer;
 }
-.modal-header .modal-close:hover {
+.overlay-header .fa-times:hover {
     color: #03b1f4;
 }
-.modal-content {
+.overlay-content {
     padding: 1em;
 }
-.modal-content .column {
+.overlay-footer {
+    padding: 0.5em 1em;
+    text-align: right;
+    border-top: 1px solid #ccc;
+}
+.overlay-content .column {
     display: inline-block;
     margin: 0 0.5em;
 }
-.modal-content img {
+.overlay-content img {
     max-width: 100%;
 }
 
 
-.modal-content .description {
+.overlay-content .description {
+    margin: 0.5em 0;
     position: relative;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -145,42 +153,66 @@ body.modal-open {
     padding: 1em;
     width: 100%;
 }
-.modal-content .description .fa-edit {
+.overlay-content .description .fa-edit {
     display: none;
     position: absolute;
     top: 0.5em;
     right: 0.5em;
     cursor: pointer;
 }
-.modal-content .description textarea {
+.overlay-content .description textarea {
     width: 100%;
     padding: 0.5em;
 }
-.modal-content .description:hover .fa-edit {
+.overlay-content .description:hover .fa-edit {
     display: block;
 }
-.modal-content .description .fa-edit:hover {
+.overlay-content .description .fa-edit:hover {
     color: #03b1f4;
 }
 
+
+.overlay-content .claimed {
+    text-align: left;
+    margin: 0.5em;
+}
+
+
+
 .comment-box {
-    min-width: 300px;
+    margin: 0.5em 0;
 }
 .comment-box textarea {
     width: 100%;
     padding: 0.5em;
 }
-.comment-list {
+.comment-box .comment-list {
     font-size: 13px;
     text-align: left;
+    max-height: 400px;
+    overflow: auto;
+    border: 1px solid #ccc;
 }
-.comment-list .time {
+.comment-box .chat {
+    position: relative;
+    padding: 2px 4px;
+}
+.comment-box .chat .tooltip {
+    display: none;
+    top: 100%;
+    font-size: 9px;
+}
+.comment-box .chat:hover .tooltip {
+    display: block;
+    opacity: 0.8;
+}
+.comment-box .comment-list .time {
     display: inline-block;
     font-size: 11px;
     padding: 4px;
     width: 160px;
     font-family: monospace;
 }
-.comment-list .author {
+.comment-box .comment-list .author {
     font-weight: 700;
 }
