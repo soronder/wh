@@ -50,9 +50,16 @@ client.connect(async (err) => {
         if(!auth) {
             return res.json({ error: 'Auth expired. Please sign back in.' });
         }
-        return collection.find({updated:{$exists:true}}, {$orderby: {updated: 1}}).limit(10).toArray().then((result) => {
-            return res.json(result || []);
-        });
+        return collection.find({
+                updated: {$exists:true}
+            }, {
+                sort: {updated: -1}
+            })
+            .limit(10)
+            .toArray()
+            .then((result) => {
+                return res.json(result || []);
+            });
     });
 
     app.get('/meta', function(req, res) {
@@ -106,6 +113,15 @@ client.connect(async (err) => {
                 else {
                     value.$pull = { claimed: auth.name };
                 }
+            }
+            if(req.body.discard !== undefined) {
+                value.$set.discard = req.body.discard ? true : false;
+            }
+            if(req.body.storage !== undefined) {
+                value.$set.storage = req.body.storage ? true : false;
+            }
+            if(req.body.countdown !== undefined) {
+                value.$set.countdown = req.body.countdown;
             }
             return collection.findOneAndUpdate({ path }, value, { upsert: true } )
                 .then(result => {

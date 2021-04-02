@@ -9,6 +9,11 @@ import {
     AccordionItemPanel,
 } from 'react-accessible-accordion';
 
+import {
+    ToggleButton,
+    ToggleButtonGroup,
+} from 'react-bootstrap';
+
 import 'react-accessible-accordion/dist/fancy-example.css';
 
 import { RecentlyUpdated } from "./RecentlyUpdated";
@@ -67,6 +72,12 @@ class Modal
         this.submitDescription = this.submitDescription.bind(this);
         this.claim = this.setClaimed.bind(this, true);
         this.unclaim = this.setClaimed.bind(this, false);
+        this.discard = this.setDiscard.bind(this, true);
+        this.undiscard = this.setDiscard.bind(this, false);
+        this.storage = this.setStorage.bind(this, true);
+        this.unstorage = this.setStorage.bind(this, false);
+        this.startCountdown = this.startCountdown.bind(this);
+        this.stopCountdown = this.stopCountdown.bind(this);
     }
     editDescription() {
         this.setState({ editingDescription: true });
@@ -120,7 +131,43 @@ class Modal
         Session.post({
             path: '/meta',
             query: { path: this.props.file.path },
-            body: { claimed: claimed },
+            body: { claimed },
+        })
+        .then(meta => {
+            this.setState({ meta });
+        });
+    }
+    setDiscard(discard) {
+        Session.post({
+            path: '/meta',
+            query: { path: this.props.file.path },
+            body: { discard },
+        })
+        .then(meta => {
+            this.setState({ meta });
+        });
+    }
+    setStorage(storage) {
+        Session.post({
+            path: '/meta',
+            query: { path: this.props.file.path },
+            body: { storage },
+        })
+        .then(meta => {
+            this.setState({ meta });
+        });
+    }
+    startCountdown() {
+        this.setCountdown(moment().add(5, 'days').valueOf());
+    }
+    stopCountdown() {
+        this.setCountdown(0);
+    }
+    setCountdown(countdown) {
+        Session.post({
+            path: '/meta',
+            query: { path: this.props.file.path },
+            body: { countdown },
         })
         .then(meta => {
             this.setState({ meta });
@@ -128,9 +175,9 @@ class Modal
     }
     render() {
         const {file} = this.props;
-        let description, comments, claimed;
+        let description, comments, claimed, discard, storage, countdown;
         if(this.state.meta) {
-            ({description, comments, claimed} = this.state.meta);
+            ({description, comments, claimed, discard, storage, countdown} = this.state.meta);
         }
         return (
             <div className='overlay'>
@@ -186,6 +233,21 @@ class Modal
                     </div>
                     <div className='overlay-footer'>
                         {
+                        storage ?
+                        <div className="unstorage btn btn-danger" onClick={this.unstorage}>Move out of Storage</div> :
+                        <div className="storage btn btn-info" onClick={this.storage}>Move to Storage</div>
+                        }
+                        {
+                        discard ?
+                        <div className="undiscard btn btn-success" onClick={this.undiscard}>Cancel Discard</div> :
+                        <div className="discard btn btn-danger" onClick={this.discard}>Discard</div>
+                        }
+                        {
+                        countdown ?
+                        <div className="uncountdown btn btn-danger" onClick={this.stopCountdown}>Cancel Countdown</div> :
+                        <div className="countdown btn btn-warning" onClick={this.startCountdown}>Start Countdown</div>
+                        }
+                        {
                         claimed && claimed.includes(Session.name) ?
                         <div className="unclaim btn btn-danger" onClick={this.unclaim}>Not Interested</div> :
                         <div className="claim btn btn-primary" onClick={this.claim}>Interested</div>
@@ -234,9 +296,9 @@ export class ExpandableImage
     }
     render() {
         const {file, meta} = this.props;
-        let comments, claimed;
+        let comments, claimed, storage, discard, countdown;
         if(meta) {
-            ({ comments, claimed } = meta);
+            ({ comments, claimed, storage, discard, countdown } = meta);
         }
         let claimedByYou;
         let claimedByMultiple;
@@ -258,15 +320,35 @@ export class ExpandableImage
                     <i className={`far fa-${comments.length > 1 ? 'comments' : 'comment'}`}></i>
                 }
                 <div className="title">{file.name}</div>
-                {
-                    (claimedByYou || claimedByOthers) &&
-                    <div className={`claimed btn btn-${claimedByYou ? 'primary' : 'info'}`}>
-                        Claimed by
-                        {claimedByYou && " You "}
-                        {(claimedByYou && claimedByMultiple) && " And "}
-                        {claimedByMultiple ? " Others" : claimedByOthers ? ` ${claimed}` : ''}
-                    </div>
-                }
+                <div className='status-bar'>
+                    {
+                        (claimedByYou || claimedByOthers) &&
+                        <div className={`claimed btn btn-${claimedByYou ? 'primary' : 'info'}`}>
+                            Claimed by
+                            {claimedByYou && " You "}
+                            {(claimedByYou && claimedByMultiple) && " And "}
+                            {claimedByMultiple ? " Others" : claimedByOthers ? ` ${claimed}` : ''}
+                        </div>
+                    }
+                    {
+                        storage &&
+                        <div className='storage btn btn-warning'>
+                            Storage
+                        </div>
+                    }
+                    {
+                        discard &&
+                        <div className='discard btn btn-danger'>
+                            Discard
+                        </div>
+                    }
+                    {
+                        countdown &&
+                        <div className='countdown btn btn-warning'>
+                            {moment(countdown).from(new Date().getTime(), true)} left
+                        </div>
+                    }
+                </div>
             </div>,
             this.state.open &&
             <Modal
@@ -301,6 +383,36 @@ class Directory
                 this.setState({ meta, open: !this.state.open });
             });
     }
+    includeItem(meta) {
+        if( meta ) {
+            const includeStorage = this.props.toggles.storage;
+            const includeDiscard = this.props.toggles.discard;
+            const includeClaimed = this.props.toggles.claimed;
+            const includeCountdown = this.props.toggles.countdown;
+            if( includeStorage && meta.storage ) {
+                return true;
+            }
+            if( includeDiscard && meta.discard ) {
+                return true;
+            }
+            if( includeCountdown && meta.countdown ) {
+                return true;
+            }
+            if( includeClaimed && meta.claimed && meta.claimed.length ) {
+                return true;
+            }
+            if( this.props.toggles.available ) {
+                return ! meta.storage &&
+                       ! meta.discard &&
+                       ! meta.countdown &&
+                       ( ! meta.claimed || ! meta.claimed.length );
+            }
+        }
+        else if( this.props.toggles.available ) {
+            return true;
+        }
+        return false;
+    }
     render() {
         const {dir} = this.props;
         const totalDirSize = dir.children.reduce((r, file) => r + file.size, 0);
@@ -318,20 +430,21 @@ class Directory
                     <AccordionItemPanel>
                         {dir.children.map((file, index) => {
                             if (file.type === 'directory') {
-                                return <Directory key={file.path} dir={file} />;
+                                return <Directory key={file.path} dir={file} toggles={this.props.toggles} />;
                             }
                             else if (file.type === 'file') {
-                                return this.state.open && (
-                                    <ExpandableImage
-                                        key={file.path}
-                                        file={file}
-                                        // dir={dir}
-                                        // index={index}
-                                        meta2={Session.state[file.path]}
-                                        meta={this.state.meta[file.path]}
-                                        onModalClose={this.fetchMetadata}
-                                    />
-                                );
+                                const meta = this.state.meta[file.path];
+                                const include = this.includeItem( meta );
+                                return this.state.open &&
+                                       include &&
+                                       (
+                                           <ExpandableImage
+                                               key={file.path}
+                                               file={file}
+                                               meta={meta}
+                                               onModalClose={this.fetchMetadata}
+                                           />
+                                       );
                             }
                             return null;
                         })}
@@ -346,7 +459,12 @@ export class ImageList
     extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { dir: null };
+        this.state = {
+            dir: null,
+            toggleArray: ["available", "claimed"],
+            toggles: { available: true, claimed: true },
+        };
+        this.toggleType = this.toggleType.bind(this);
     }
     componentDidMount() {
         Session.fetch({
@@ -365,6 +483,15 @@ export class ImageList
             this.setState({ meta });
         });
     }
+    toggleType(toggles) {
+        this.setState({
+            toggleArray: toggles,
+            toggles: toggles.reduce((r, name) => {
+                r[name] = true;
+                return r;
+            }, {})
+        });
+    }
     render() {
         if (!this.state.dir) {
             return null;
@@ -373,10 +500,22 @@ export class ImageList
             <div className='row image-list'>
                 <div className='col-10 directories'>
                     {this.state.dir.children.map(dir => (
-                        <Directory key={dir.path} dir={dir} />
+                        <Directory key={dir.path} dir={dir} toggles={this.state.toggles} />
                     ))}
                 </div>
                 <div className='col-2'>
+                    <ToggleButtonGroup
+                        type="checkbox"
+                        vertical
+                        value={this.state.toggleArray}
+                        onChange={this.toggleType}
+                    >
+                        <ToggleButton value="available">Available</ToggleButton>
+                        <ToggleButton value="claimed">Claimed</ToggleButton>
+                        <ToggleButton value="storage">Storage</ToggleButton>
+                        <ToggleButton value="discard">Discard</ToggleButton>
+                        <ToggleButton value="countdown">Countdown</ToggleButton>
+                    </ToggleButtonGroup>
                     <RecentlyUpdated meta={this.state.meta} />
                 </div>
             </div>

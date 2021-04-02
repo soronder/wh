@@ -4,6 +4,12 @@
 
 
 
+body {
+    padding: 1em;
+}
+
+
+
 .login form {
     padding: 1em;
     border: 1px solid #ccc;
@@ -23,6 +29,10 @@
 
 
 
+.image-list .btn-group-vertical {
+    width: 100%;
+    margin: 0 0 1em 0;
+}
 .image-list .accordion__heading span {
     float: right;
 }
@@ -60,15 +70,20 @@
     color: #03b1f4;
     border: 2px solid #03b1f4;
 }
-.image-list .img .claimed {
-    cursor: pointer;
+.image-list .img .claimed,
+.image-list .img .discard,
+.image-list .img .storage,
+.image-list .img .countdown {
+    width: 100%;
+    padding: 2px 4px;
+    border-radius: 0;
+}
+.image-list .img .status-bar {
     bottom: 0;
     left: 0;
     position: absolute;
     width: 100%;
-    padding: 2px 4px;
     font-size: 10px;
-    border-radius: 0;
 }
 .image-list .img:hover .fa-comment,
 .image-list .img:hover .fa-comments {
@@ -126,11 +141,6 @@ body.overlay-open {
 .overlay-content {
     padding: 1em;
 }
-.overlay-footer {
-    padding: 0.5em 1em;
-    text-align: right;
-    border-top: 1px solid #ccc;
-}
 .overlay-content .column {
     display: inline-block;
     margin: 0 0.5em;
@@ -138,8 +148,6 @@ body.overlay-open {
 .overlay-content img {
     max-width: 100%;
 }
-
-
 .overlay-content .description {
     margin: 0.5em 0;
     position: relative;
@@ -172,11 +180,31 @@ body.overlay-open {
 .overlay-content .description .fa-edit:hover {
     color: #03b1f4;
 }
-
-
 .overlay-content .claimed {
     text-align: left;
     margin: 0.5em;
+}
+
+
+
+.overlay-footer {
+    padding: 0.5em 1em;
+    text-align: right;
+    border-top: 1px solid #ccc;
+}
+.overlay-footer .storage,
+.overlay-footer .unstorage,
+.overlay-footer .discard,
+.overlay-footer .undiscard,
+.overlay-footer .countdown,
+.overlay-footer .uncountdown{
+    float: left;
+}
+.overlay-footer .storage,
+.overlay-footer .unstorage,
+.overlay-footer .discard,
+.overlay-footer .undiscard {
+    margin-right: 1em;
 }
 
 
