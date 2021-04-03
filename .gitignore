@@ -1,2 +1,4 @@
 node_modules
 state.json
+.env
+*backup*.json
