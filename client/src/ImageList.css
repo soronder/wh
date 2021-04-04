@@ -1,0 +1,186 @@
+* {
+    box-sizing: border-box;
+}
+
+
+
+.login form {
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 400px;
+    max-width: 100%;
+    margin: 1em auto;
+}
+.login input {
+    display: block;
+    padding: 8px 20px;
+    margin: 1em auto;
+    font-size: 1em;
+}
+.login .error {
+    padding: 1em;
+    background: #ffb3b3;
+    border: 1px solid red;
+    border-radius: 4px;
+}
+
+
+
+.image-list .accordion__heading span {
+    float: right;
+}
+.image-list .img {
+    position: relative;
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    margin: 0.5em;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-position: center center;
+    background-size: cover;
+    cursor: pointer;
+}
+.image-list .img:hover {
+    border: 2px solid #03b1f4;
+}
+.image-list .img .fa-comment,
+.image-list .img .fa-comments {
+    position: absolute;
+    top: 11px;
+    right: 6px;
+    color: #ccc;
+    font-size: 16px;
+    background: white;
+    height: 30px;
+    border-radius: 100%;
+    width: 30px;
+    line-height: 26px;
+    border: 2px solid #ccc;
+}
+.image-list .img:hover .fa-comment,
+.image-list .img:hover .fa-comments {
+    color: #03b1f4;
+    border: 2px solid #03b1f4;
+}
+.image-list .img .fa-heart {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    color: #ff3187;
+    font-size: 16px;
+}
+.image-list .img:hover .fa-comment,
+.image-list .img:hover .fa-comments {
+    color: #03b1f4;
+    border: 2px solid #03b1f4;
+}
+.image-list .img img {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+}
+.image-list .img div {
+    font-size: 10px;
+    padding: 4px;
+    border-radius: 4px 4px 0 0;
+    background: white;
+}
+
+
+
+body.modal-open {
+    overflow: hidden;
+}
+.modal {
+    z-index: 10000;
+    position: fixed;
+    background: rgba(0,0,0,0.8);
+    top: 0;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    overflow: auto;
+}
+.modal-body {
+    position: relative;
+    width: 1400px;
+    max-width: 90%;
+    margin: 2em auto;
+    background: white;
+}
+.modal-header {
+    margin: 0;
+    padding: 0.5em 1em;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+.modal-header .modal-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5em;
+    cursor: pointer;
+}
+.modal-header .modal-close:hover {
+    color: #03b1f4;
+}
+.modal-content {
+    padding: 1em;
+}
+.modal-content .column {
+    display: inline-block;
+    margin: 0 0.5em;
+}
+.modal-content img {
+    max-width: 100%;
+}
+
+
+.modal-content .description {
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #eee;
+    padding: 1em;
+    width: 100%;
+}
+.modal-content .description .fa-edit {
+    display: none;
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    cursor: pointer;
+}
+.modal-content .description textarea {
+    width: 100%;
+    padding: 0.5em;
+}
+.modal-content .description:hover .fa-edit {
+    display: block;
+}
+.modal-content .description .fa-edit:hover {
+    color: #03b1f4;
+}
+
+.comment-box {
+    min-width: 300px;
+}
+.comment-box textarea {
+    width: 100%;
+    padding: 0.5em;
+}
+.comment-list {
+    font-size: 13px;
+    text-align: left;
+}
+.comment-list .time {
+    display: inline-block;
+    font-size: 11px;
+    padding: 4px;
+    width: 160px;
+    font-family: monospace;
+}
+.comment-list .author {
+    font-weight: 700;
+}
