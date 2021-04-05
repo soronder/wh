@@ -13,18 +13,7 @@ You'll need:
 
 ### Install
 
-##### Install server
-
-Install dependencies for the server in the root directory:
 ```
-npm install
-```
-
-##### Install client
-
-Install dependencies for the client in the client directory:
-```
-cd client
 npm install
 ```
 
@@ -45,30 +34,21 @@ DB_LOC=cluster0.j453m
 SIMPLE_PW={whatever global pw you want}
 ```
 
-### Run in Development
+### Run Locally
 
-For development, you'll need to run both the server and the client.
-
-I recommend doing this in 2 separate terminal windows.
-
-Start the server from the root project directory:
+For development, run both the server and the client via 1 command:
 ```
 npm run start
 ```
 
-and client from the client directory:
-```
-cd client
-npm run start
-```
+Then go to the [client url at localhost:3000](http://localhost:3000) which is set up to live-reload when files are changed and proxy backend requests to the Express server.
 
-Then we go to the [client url at localhost:3001](http://localhost:3001) which is set up to live-reload when files are changed and proxy backend requests to the Express server. You could also open the [Express server at localhost:3000](http://localhost:3000) which will serve the built client files.
+You can also open the [Express server at localhost:3001](http://localhost:3001) which will serve the built client files.
 
 ### Deploy
 
 Build the client code so it can be served statically by the Express server:
 ```
-cd client
 npm run build
 ```
 
@@ -88,11 +68,13 @@ git push heroku master
 ##### Deploying on Glitch
 
 [Glitch](https://glitch.com/) is another great platform that lets you quickly prototype, remix other apps, and can sync via git push the same as Heroku.
-- [CRA and Express together on Glitch](https://dev.to/glitch/create-react-app-and-express-together-on-glitch-28gi)
-- [Pushing to Glitch from Git](https://glitch.happyfox.com/kb/article/85-how-do-i-push-code-that-i-created-locally-to-my-project-on-glitch/)
+
+This repo has already been configured to work with Glitch, but if starting from scratch, [these are the steps you'll need to follow to get CRA and Express working together](https://dev.to/glitch/create-react-app-and-express-together-on-glitch-28gi).
+
+Once you've created a Glitch app, follow [these instructions to push to Glitch](https://glitch.happyfox.com/kb/article/85-how-do-i-push-code-that-i-created-locally-to-my-project-on-glitch/). If pushing to Glitch, you need to refresh your app to pick up the changed files by clicking "Tools ^", then "Terminal", then entering the command "refresh".
 
 ### Remember the Most Important Things
 
-![Trying my Best by @titsay](https://github.com/soronder/wh/blob/master/public/images/Motivational%20Sloths/trying%20my%20best.png)
+![Trying my Best by @titsay](https://github.com/soronder/wh/blob/master/server-static/images/Motivational%20Sloths/trying%20my%20best.png)
 
-![Nothing is Impossible](https://github.com/soronder/wh/blob/master/public/images/Motivational%20Sloths/nothing%20is%20impossible.jpeg)
+![Nothing is Impossible](https://github.com/soronder/wh/blob/master/server-static/images/Motivational%20Sloths/nothing%20is%20impossible.jpeg)

@@ -39,8 +39,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use('/static', express.static(path.join(__dirname, 'client/build/static')));
+app.use('/server-static', express.static(path.join(__dirname, 'server-static')));
+app.use('/static', express.static(path.join(__dirname, 'build/static')));
 
 const uri = `mongodb+srv://${dbUser}:${dbPw}@${dbLoc}.mongodb.net/whouse?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -51,11 +51,11 @@ client.connect(async (err) => {
     // app.use('/', indexRouter);
 
     app.get('/', function(req, res) {
-        return res.sendFile(path.join(__dirname, 'client/build/index.html'));
+        return res.sendFile(path.join(__dirname, 'build/index.html'));
     });
 
     app.get('/dir', function(req, res) {
-        const tree = dirTree('public/images');
+        const tree = dirTree('server-static/images');
         return res.json(tree);
     });
 
