@@ -3,12 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "npm run development",
+    "development": "NODE_ENV=development concurrently --kill-others \"npm run client\" \"npm run server\"",
+    "production": "npm run build && NODE_ENV=production npm run server",
+    "client": "npm run start --prefix client",
+    "server": "node ./bin/www",
+    "build": "react-scripts build"
   },
   "engines": {
     "node": "10.x"
   },
   "dependencies": {
+    "concurrently": "^6.0.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "directory-tree": "^2.2.6",
